@@ -4,26 +4,19 @@ include 'config.php';
 
 // Vérifie si l'ID de la question est déjà stocké dans la session
 if (!isset($_SESSION['question_id'])) {
-    // Sélection aléatoire d'une question si l'ID n'est pas déjà défini
-    $sql = "SELECT id, question, taux_reussite FROM questions ORDER BY RAND() LIMIT 1";
-    $result = $conn->query($sql);
+    // Si l'ID n'est pas déjà défini, initialisez-le à null
+    $_SESSION['question_id'] = null;
+}
 
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $question_id = $row["id"];
-        $_SESSION['question_id'] = $question_id;
-        $question = $row["question"];
-        $taux_reussite = $row["taux_reussite"];
-    } else {
-        // Gérer le cas où aucune question n'est trouvée
-        echo "Aucune question trouvée.";
-        exit();
-    }
-} else {
-    // Récupérer l'ID de la question depuis la session
-    $question_id = $_SESSION['question_id'];
+// Récupération de l'ID de la question actuelle
+$question_id = $_SESSION['question_id'];
 
-    // Récupérer la question en fonction de l'ID
+// Variables pour le traitement du formulaire
+$message = '';
+$form_visible = false;
+
+// Si l'ID de la question est défini, récupérez les détails de la question
+if ($question_id !== null) {
     $sql = "SELECT question, taux_reussite FROM questions WHERE id = $question_id";
     $result = $conn->query($sql);
 
@@ -31,41 +24,57 @@ if (!isset($_SESSION['question_id'])) {
         $row = $result->fetch_assoc();
         $question = $row["question"];
         $taux_reussite = $row["taux_reussite"];
+        $form_visible = true;
     } else {
-        // Gérer le cas où aucune question n'est trouvée
-        echo "Aucune question trouvée.";
+        // Gérer le cas où la question n'est pas trouvée
+        echo "La question n'a pas pu être récupérée.";
         exit();
     }
 }
 
-// Variables pour le traitement du formulaire
-$message = '';
-$form_visible = true;
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $reponse_utilisateur = $_POST["reponse"];
-
-    // Récupération de la réponse attendue depuis la base de données
-    $sql = "SELECT reponse_attendue, message_succes, message_mauvaise_reponse FROM questions WHERE id = $question_id";
+// Traitement du formulaire pour changer de question
+if (isset($_POST['change_question'])) {
+    // Sélection aléatoire d'une nouvelle question
+    $sql = "SELECT id, question, taux_reussite FROM questions ORDER BY RAND() LIMIT 1";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-        $reponse_attendue = $row["reponse_attendue"];
-        $message_succes = $row["message_succes"];
-        $message_mauvaise_reponse = $row["message_mauvaise_reponse"];
+        $question_id = $row["id"];
+        $_SESSION['question_id'] = $question_id;
+    }
+}
 
-        if ($reponse_utilisateur == $reponse_attendue) {
-            $message = "<div class='alert alert-success' role='alert'>" . $message_succes . "</div>";
-            $form_visible = false;
+// Traitement du formulaire pour répondre à la question
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Vérifier si la clé "reponse" existe dans $_POST
+    $reponse_utilisateur = isset($_POST["reponse"]) ? $_POST["reponse"] : null;
 
-            // Mettez à jour le taux de réussite en appelant la fonction
-            updateTauxReussite($question_id, true);
-        } else {
-            $message = "<div class='alert alert-danger' role='alert'>" . $message_mauvaise_reponse . "</div>";
+    if ($question_id !== null) {
+        // Récupération de la réponse attendue depuis la base de données
+        $sql = "SELECT reponse_attendue, message_succes, message_mauvaise_reponse FROM questions WHERE id = $question_id";
+        $result = $conn->query($sql);
 
-            // Mettez à jour le taux de réussite en appelant la fonction
-            updateTauxReussite($question_id, false);
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $reponse_attendue = $row["reponse_attendue"];
+            $message_succes = $row["message_succes"];
+            $message_mauvaise_reponse = $row["message_mauvaise_reponse"];
+
+            if ($reponse_utilisateur == $reponse_attendue) {
+                $message = "<div class='alert alert-success' role='alert'>" . $message_succes . "</div>";
+
+                // Mettez à jour le taux de réussite en appelant la fonction
+                updateTauxReussite($question_id, true);
+
+                // Réinitialiser la session pour permettre une nouvelle sélection aléatoire lors du prochain changement de question
+                $_SESSION['question_id'] = null;
+            } else {
+                $message = "<div class='alert alert-danger' role='alert'>" . $message_mauvaise_reponse . "</div>";
+
+                // Mettez à jour le taux de réussite en appelant la fonction
+                updateTauxReussite($question_id, false);
+            }
         }
     }
 }
@@ -120,10 +129,18 @@ function updateTauxReussite($question_id, $reponse_correcte)
 <body>
     <div class="container mt-5">
         <h2>Répondre à une question</h2>
-        <p>Question: <?php echo $question; ?></p>
-        <?php echo $message; ?>
 
+        <!-- Formulaire pour changer de question -->
+        <form method="post" action="">
+            <button type="submit" class="btn btn-primary mb-2" name="change_question">Changer de question</button>
+        </form>
+
+        <!-- Affichage de la question si le formulaire est visible -->
         <?php if ($form_visible) : ?>
+            <p>Question: <?php echo $question; ?></p>
+            <?php echo $message; ?>
+
+            <!-- Formulaire pour répondre à la question -->
             <form method="post" action="">
                 <div class="form-group">
                     <label for="reponse">Réponse:</label>
@@ -131,9 +148,11 @@ function updateTauxReussite($question_id, $reponse_correcte)
                 </div>
                 <button type="submit" class="btn btn-primary">Valider</button>
             </form>
+
+            <!-- Affichage du pourcentage de réussite -->
+            <p>Pourcentage de réussite: <?php echo $taux_reussite; ?>%</p>
         <?php endif; ?>
 
-        <p>Pourcentage de réussite: <?php echo $taux_reussite; ?>%</p>
         <form action="list_questions.php" method="post">
             <button type="submit" class="btn btn-primary">Quitter</button>
         </form>
