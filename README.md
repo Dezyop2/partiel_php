@@ -1,5 +1,7 @@
 # partiel_php
 
+## Table des matières
+
 CREATE TABLE `escape_game_db`.`questions` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `question` VARCHAR(255) NULL,
@@ -11,35 +13,31 @@ CREATE TABLE `escape_game_db`.`questions` (
   `tentatives_reussies` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 );
+## Installation
 
+1. Cloner le dépôt : `git clone https://github.com/votre-utilisateur/votre-projet.git`
+2. Aller dans le répertoire du projet : `cd votre-projet`
+3. Installer les dépendances : `composer install` (ou tout autre commande d'installation des dépendances)
+4. Configurer le fichier `config.php` avec les informations appropriées.
 
+## Utilisation
 
+1. Assurez-vous que votre serveur web est configuré correctement.
+2. Accédez au projet via votre navigateur.
+3. Suivez les instructions sur la page pour répondre aux questions.
 
+## Utilisation du Site
 
+1. **Répondre à une question :** Lorsque vous arrivez sur la page, aucune question n'est affichée initialement. Cliquez sur le bouton "Nouvelle Question" pour charger une question aléatoire.
 
-### Ajouter une question :
-1. Accédez à la page `add_question.php`.
-2. Remplissez le formulaire avec les détails de votre question, y compris la question elle-même, la réponse attendue, le message de succès et le message de mauvaise réponse.
-3. Soumettez le formulaire.
+2. **Formulaire de réponse :** Une fois la question affichée, un formulaire avec un champ de réponse sera visible. Entrez votre réponse dans le champ et cliquez sur le bouton "Valider" pour soumettre votre réponse.
 
-Après avoir soumis le formulaire, une nouvelle question est ajoutée à la base de données, et le site générera un lien unique pour cette question. Vous pouvez copier et partager ce lien pour permettre à d'autres personnes de répondre à la question.
+3. **Affichage du Résultat :** Après avoir soumis votre réponse, le résultat de votre réponse sera affiché. Si la réponse est correcte, un message de succès sera affiché. Sinon, un message d'erreur sera affiché.
 
-### Répondre à une question :
-1. Utilisez le lien généré après avoir ajouté une question ou accédez à la page `answer_question.php`.
-2. Sur cette page, vous verrez la question, un champ de texte pour saisir la réponse et un bouton "Valider".
-3. Saisissez la réponse dans le champ de texte et cliquez sur "Valider".
-4. Le site vous montrera le pourcentage de réussite de la question ainsi que le message correspondant à votre réponse.
+4. **Changer de Question :** Si vous souhaitez changer la question actuelle, cliquez sur le bouton "Nouvelle Question" pour en charger une autre aléatoirement.
 
-### Lister les questions :
-1. Accédez à la page `list_questions.php`.
-2. Vous verrez une liste de toutes les questions existantes avec leur taux de réussite associé.
-3. Utilisez l'option de tri pour organiser les questions par pourcentage de réussite (croissant ou décroissant).
+5. **Pourcentage de Réussite :** Le pourcentage de réussite actuel est affiché en bas de la page.
 
-### Supprimer une question :
-1. Sur la page `list_questions.php`, vous verrez une liste de questions avec un bouton "Supprimer" à côté de chaque question.
-2. Cliquez sur le bouton "Supprimer" de la question que vous souhaitez supprimer.
-3. La question sera supprimée de la base de données, et la page sera automatiquement actualisée.
+6. **Quitter :** Vous pouvez quitter la session en cliquant sur le bouton "Quitter", cela vous redirigera vers une autre page.
 
-**Note :** Les actions de suppression sont effectuées directement, sans confirmation, comme spécifié dans les consignes. Soyez prudent lorsque vous supprimez une question, car cela ne peut pas être annulé.
-
-Cela devrait vous aider à naviguer et utiliser les fonctionnalités du site. Si vous avez des questions spécifiques ou rencontrez des problèmes, n'hésitez pas à les partager pour que je puisse vous aider davantage.
+Note : Assurez-vous d'activer les cookies dans votre navigateur pour une expérience utilisateur optimale.
