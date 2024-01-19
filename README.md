@@ -3,15 +3,25 @@
 ## Table des matières
 
 CREATE TABLE `escape_game_db`.`questions` (
+
   `id` INT NOT NULL AUTO_INCREMENT,
+
   `question` VARCHAR(255) NULL,
+
   `reponse_attendue` VARCHAR(255) NULL,
+
   `message_succes` VARCHAR(255) NULL,
+
   `message_mauvaise_reponse` VARCHAR(255) NULL,
+
   `taux_reussite` VARCHAR(45) NULL,
+
   `tentatives_totales` INT NOT NULL DEFAULT 0,
+
   `tentatives_reussies` INT NOT NULL DEFAULT 0,
+
   PRIMARY KEY (`id`)
+  
 );
 ## Installation
 
